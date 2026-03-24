@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropertyCard from '../PropertyCard';
 import './PropertyListing.scss';
+import { element } from 'prop-types';
 
 const DUMMY_PROPERTY = {
     id: 73864112,
@@ -17,16 +18,38 @@ const DUMMY_PROPERTY = {
         'https://media.rightmove.co.uk/dir/crop/10:9-16:9/38k/37655/53588679/37655_CAM170036_IMG_01_0000_max_476x317.jpg',
 };
 
+const API_URL = 'http://localhost:3000/api/properties'
+
 const PropertyListing = () => {
+
+    const [properties, setProperties] = useState([]);
+
+    useEffect(() => {
+        const getProperties = async () => {
+
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok){
+                    throw new Error('Error')
+                }
+                const data = await response.json();
+                setProperties(data);
+            } catch (error) {
+                if(error instanceof Error){
+                    console.error(error.message)
+                }
+            }
+        }
+        getProperties();
+    }, [])
+
     return (
         <ul className="PropertyListing">
-            {Array(5)
-                .fill(DUMMY_PROPERTY)
-                .map((property, index) => (
-                    <li key={index}>
-                        <PropertyCard {...property} />
-                    </li>
-                ))}
+            {properties && properties.map((property, index) => (
+                <li key={index}>
+                    <PropertyCard {...property} />
+                </li>
+            ))}
         </ul>
     );
 };
